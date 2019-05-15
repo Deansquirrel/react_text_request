@@ -1,0 +1,18 @@
+.rootContainer {
+    padding: 50px;
+    height: 100%;
+    width: 100%;
+    background: rgba(190,200,200,0.2);
+}
+
+.SearchContainer {
+    max-width: 400px;
+}
+
+.ResultInfo {
+
+}
+
+.ResultInfo .ResultInfo_title {
+
+}
