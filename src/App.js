@@ -22,12 +22,11 @@ class SearchContainer extends React.Component {
     constructor(props){
         super(props);
         this.state={
-            errCode:"",
-            errMsg:"",
             searchPhone:"",
-            searchResult:{},
+            searchResult:"",
+            result:{},
             showResult:false,
-            disabled:false
+            canDo:true
         }
     }
 
@@ -39,36 +38,34 @@ class SearchContainer extends React.Component {
     }
 
     getJsonResult(searchPhone){
+        let d = {};
+        d.phone = searchPhone;
+        console.log(JSON.stringify(d));
         $.ajax({
-            url:"https://www.baidu.com",
-            dataType:'json',
-            cache:false,
             type:'POST',
-            data:{},
-            befordSend:function(){
+            url:'http://192.168.8.104:8000/text',
+            data:JSON.stringify(d),
+            dataType:'json',
+            contentType:'json',
+            cache:false,
+            sync:true,
+            beforeSend:function(){
                 this.setState({
-                    disabled:true
-                })
+                    canDo:false
+                });
             }.bind(this),
             complete:function(){
-                console.log("complete")
-                let r = {};
-                r.searchPhone = searchPhone
-                r.errCode = -1;
-                r.errMsg = "testMsg";
-                r.result = "failed";
                 this.setState({
-                    disabled:false,
-                    searchResult:r,
+                    canDo:true
+                });
+            }.bind(this),
+            success: function (data) {
+                this.setState({
+                    searchResult:data['errcode'] === 0?"success":"failed",
+                    result:data,
                     showResult:true,
                 })
             }.bind(this),
-            success:function(data){
-                console.log(data)
-            }.bind(this),
-            error:function(xhr,status,err) {
-                console.error(this.props.url, status, err.toString());
-            }.bind(this)
         })
     }
 
@@ -77,12 +74,13 @@ class SearchContainer extends React.Component {
             <div className={"SearchContainer"}>
                 <SearchForm
                     placeholder={"手机号"}
-                    disabled={this.state.disable}
+                    canDo={this.state.canDo}
                     searchPhone={this.state.searchPhone}
                     onSearch={(value)=>this.onSearch(value)} />
                 <ResultInfo
                     searchPhone={this.state.searchPhone}
-                    result={this.state.searchResult}
+                    searchResult={this.state.searchResult}
+                    result={this.state.result}
                     showResult={this.state.showResult?"block":"none"} />
             </div>
         )
@@ -93,9 +91,9 @@ const Search = Input.Search;
 
 class SearchForm extends Component {
     onSearch(value){
-        value = value.trim()
+        value = value.trim();
         if (value !== "") {
-            console.log(value)
+            console.log(value);
             this.props.onSearch(value)
         }
     }
@@ -106,7 +104,7 @@ class SearchForm extends Component {
                 <Search
                     autoFocus
                     defaultValue={""}
-                    disabled={this.props.disabled}
+                    disabled={!this.props.canDo}
                     allowClear
                     placeholder={this.props.placeholder}
                     enterButton="Update"
@@ -136,7 +134,7 @@ class ResultInfo extends Component {
                         SearchResult
                     </Col>
                     <Col className={"ResultInfo_content"} span={16}>
-                        {this.props.result.result}
+                        {this.props.searchResult}
                     </Col>
                 </Row>
                 <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} style={{display:this.props.result.errCode===0?"none":"block"}}>
@@ -144,7 +142,7 @@ class ResultInfo extends Component {
                         errCode
                     </Col>
                     <Col className={"ResultInfo_content"} span={16}>
-                        {this.props.result.errCode}
+                        {this.props.result.errcode}
                     </Col>
                 </Row>
                 <Row gutter={{ xs: 8, sm: 16, md: 24, lg: 32 }} style={{display:this.props.result.errCode===0?"none":"block"}}>
@@ -152,7 +150,7 @@ class ResultInfo extends Component {
                         errMsg
                     </Col>
                     <Col className={"ResultInfo_content"} span={16}>
-                        {this.props.result.errMsg}
+                        {this.props.result.errmsg}
                     </Col>
                 </Row>
             </div>
