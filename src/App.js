@@ -5,8 +5,11 @@ import zhCN from 'antd/lib/locale-provider/zh_CN';
 import "antd/dist/antd.css";
 import "./App.css"
 import $ from 'jquery'
+import {GetPort,UpdatePort} from  './myConfig.js'
 
 export default App;
+
+
 
 function App(){
     return (
@@ -26,8 +29,32 @@ class SearchContainer extends React.Component {
             searchResult:"",
             result:{},
             showResult:false,
-            canDo:true
+            canDo:true,
+            port:0,
         }
+    }
+
+    getName(){
+        console.log(GetPort())
+        UpdatePort(1234)
+        console.log(GetPort())
+        $.ajax({
+            url:'../../config.json',
+            cache:false,
+            dataType:'json',
+            success:function(data){
+                console.log(data)
+                this.setState({
+                    port:data["port"]
+                });
+            }.bind(this),
+            error:function(e){
+                console.log(e.toString())
+                this.setState({
+                    port:0
+                });
+            }.bind(this)
+        });
     }
 
     onSearch(value){
@@ -46,7 +73,8 @@ class SearchContainer extends React.Component {
             url:'http://192.168.8.104:8000/text',
             data:JSON.stringify(d),
             dataType:'json',
-            contentType:'json',
+            timeout:30000,
+            contentType:'application/json',
             cache:false,
             sync:true,
             beforeSend:function(){
@@ -72,11 +100,12 @@ class SearchContainer extends React.Component {
     render(){
         return (
             <div className={"SearchContainer"}>
+                <div>{this.state.port}</div>
                 <SearchForm
                     placeholder={"手机号"}
                     canDo={this.state.canDo}
                     searchPhone={this.state.searchPhone}
-                    onSearch={(value)=>this.onSearch(value)} />
+                    onSearch={(value)=>{this.onSearch(value);this.getName()}} />
                 <ResultInfo
                     searchPhone={this.state.searchPhone}
                     searchResult={this.state.searchResult}
