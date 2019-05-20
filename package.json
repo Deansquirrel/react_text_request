@@ -1,6 +1,6 @@
 {
-  "name": "react_text_request",
-  "version": "0.1.0",
+  "name": "update_wx_membership_no",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {
     "antd": "^3.18.1",
@@ -36,7 +36,14 @@
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
   "main": "index.js",
   "devDependencies": {},
-  "author": "",
+  "author": "yuansong6@163.com",
   "license": "ISC",
-  "homepage": "."
+  "homepage": "http://.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Deansquirrel/react_text_request.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Deansquirrel/react_text_request/issues"
+  }
 }
