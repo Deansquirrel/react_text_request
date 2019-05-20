@@ -1,4 +1,4 @@
 {
   "name": "test user",
-  "port": 8090
+  "address": "http://localhost:8090"
 }

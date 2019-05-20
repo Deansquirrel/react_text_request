@@ -38,7 +38,7 @@
   "devDependencies": {},
   "author": "yuansong6@163.com",
   "license": "ISC",
-  "homepage": "http://.",
+  "homepage": ".",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Deansquirrel/react_text_request.git"
