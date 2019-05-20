@@ -5,7 +5,7 @@ import zhCN from 'antd/lib/locale-provider/zh_CN';
 import "antd/dist/antd.css";
 import "./App.css"
 import $ from 'jquery'
-import {GetPort,UpdatePort} from  './myConfig.js'
+// import {GetPort,UpdatePort} from  './myConfig.js'
 
 export default App;
 
@@ -22,6 +22,7 @@ function App(){
 }
 
 class SearchContainer extends React.Component {
+
     constructor(props){
         super(props);
         this.state={
@@ -30,27 +31,27 @@ class SearchContainer extends React.Component {
             result:{},
             showResult:false,
             canDo:true,
+            user:"",
             port:0,
         }
     }
 
-    getName(){
-        console.log(GetPort())
-        UpdatePort(1234)
-        console.log(GetPort())
+    componentWillMount() {
         $.ajax({
             url:'../../config.json',
             cache:false,
             dataType:'json',
             success:function(data){
-                console.log(data)
+                // console.log(data)
                 this.setState({
+                    user:data["name"],
                     port:data["port"]
                 });
             }.bind(this),
             error:function(e){
-                console.log(e.toString())
+                // console.log(e.toString())
                 this.setState({
+                    user:"",
                     port:0
                 });
             }.bind(this)
@@ -67,10 +68,11 @@ class SearchContainer extends React.Component {
     getJsonResult(searchPhone){
         let d = {};
         d.phone = searchPhone;
-        console.log(JSON.stringify(d));
+        // console.log(JSON.stringify(d));
+        const serverUrl= "http://127.0.0.1:" + this.state.port + "/text"
         $.ajax({
             type:'POST',
-            url:'http://192.168.8.104:8000/text',
+            url:serverUrl,
             data:JSON.stringify(d),
             dataType:'json',
             timeout:30000,
@@ -79,13 +81,16 @@ class SearchContainer extends React.Component {
             sync:true,
             beforeSend:function(){
                 this.setState({
-                    canDo:false
+                    canDo:false,
+                    showResult:false,
                 });
             }.bind(this),
             complete:function(){
                 this.setState({
                     canDo:true
                 });
+                const i = document.getElementById("inputSearch");
+                i.focus();
             }.bind(this),
             success: function (data) {
                 this.setState({
@@ -94,18 +99,26 @@ class SearchContainer extends React.Component {
                     showResult:true,
                 })
             }.bind(this),
+            error:function(xhr,status,e) {
+                let errMsg = "[" + xhr.status + "]" + status + ":"+ e.toString()
+                this.setState({
+                    searchResult:"failed",
+                    result:{"errcode":-1,"errmsg":errMsg},
+                    showResult:true,
+                })
+            }.bind(this)
         })
     }
 
     render(){
         return (
             <div className={"SearchContainer"}>
-                <div>{this.state.port}</div>
+                <p style={{marginLeft:'10px'}}>{this.state.user}</p>
                 <SearchForm
                     placeholder={"手机号"}
                     canDo={this.state.canDo}
                     searchPhone={this.state.searchPhone}
-                    onSearch={(value)=>{this.onSearch(value);this.getName()}} />
+                    onSearch={(value)=>{this.onSearch(value)}} />
                 <ResultInfo
                     searchPhone={this.state.searchPhone}
                     searchResult={this.state.searchResult}
@@ -122,7 +135,7 @@ class SearchForm extends Component {
     onSearch(value){
         value = value.trim();
         if (value !== "") {
-            console.log(value);
+            // console.log(value);
             this.props.onSearch(value)
         }
     }
@@ -131,6 +144,7 @@ class SearchForm extends Component {
         return (
             <div>
                 <Search
+                    id={"inputSearch"}
                     autoFocus
                     defaultValue={""}
                     disabled={!this.props.canDo}
